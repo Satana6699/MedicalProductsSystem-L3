@@ -1,0 +1,81 @@
+﻿/* Основные стили для боковой панели */
+.menu {
+    position: fixed; /* Фиксированное положение на экране */
+    top: 0;
+    left: 0;
+    height: 100%; /* Высота на весь экран */
+    width: 300px; /* Ширина панели */
+    background-color: #333; /* Темный фон */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Стили для списка навигации */
+.navigation {
+    list-style-type: none; /* Убираем маркеры списка */
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+    /* Стили для элементов списка */
+    .navigation li {
+        width: 100%;
+    }
+
+        /* Ссылки внутри панели */
+        .navigation li a {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            transition: background-color 0.3s; /* Плавный переход при наведении */
+        }
+
+            .navigation li a:hover {
+                background-color: #555; /* Более светлый фон при наведении */
+            }
+
+            /* Стили для иконок Font Awesome */
+            .navigation li a i {
+                margin-right: 10px; /* Отступ иконки от текста */
+                font-size: 20px;
+            }
+
+/* Стили для контента рядом с панелью */
+body {
+    margin-left: 300px; /* Отступ для основного контента, равный ширине панели */
+    font-family: Arial, sans-serif;
+}
+
+/* Styling only for tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    table th, table td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    /* Different colors for even and odd rows */
+    table tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #e9e9e9;
+    }
+
+    /* Hover effect */
+    table tr:hover {
+        background-color: #d3d3f9;
+    }
