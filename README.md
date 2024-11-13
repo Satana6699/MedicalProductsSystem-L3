@@ -1,1 +1,1 @@
-# MedicalProductsSystem
+[![build and test](https://github.com/Satana6699/MedicalProductsSystem-L3/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/Satana6699/MedicalProductsSystem-L3/actions/workflows/dotnet-desktop.yml)
