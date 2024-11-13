@@ -78,15 +78,14 @@ namespace MedicinalProductsSystem
 
             // добавляем собственный компонент middleware по инициализации базы данных и производим ее инициализацию
             app.UseDbInitializer();
-
+            var title = "Главная страница";
             var homeHTML =
             "<head>" +
                 "<meta charset='UTF-8'>"+
                 "<link rel = 'stylesheet' href = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'>" +
                 "<link rel='stylesheet' href='/css/styles.css'>" + // Подключение CSS файла
                 "<link rel = 'stylesheet' href = 'https://use.fontawesome.com/releases/v6.6.0/css/all.css'>" +
-            //{% block head %}
-            //{% endblock %}
+            "<title>" + title + "</title>" +
             "</head>" +
             "<body>" +
                 "<aside class='menu'>" +
@@ -104,6 +103,72 @@ namespace MedicinalProductsSystem
                         "</ul>" +
                 "</aside>";
 
+            //Запоминание в Сookies значений, введенных в форме
+            app.Map("/searchform1", (appBuilder) =>
+            {
+                appBuilder.Run(async (context) =>
+                {
+                    // Чтение значения из cookies (если оно есть)
+                    string nameSearch = context.Request.Cookies["Name"] ?? "";
+                    title = "Поиск записей по полю (1)";
+
+                    // Формирование строки для вывода HTML формы
+                    string strResponse = homeHTML +
+                    "<H1>Поиск по имени в таблице Medicine</H1>" +
+                    "<META http-equiv='Content-Type' content='text/html; charset=utf-8'/>" +
+                    "<BODY><FORM action ='/searchform1' method='get'>" +
+                    "Имя:<BR><INPUT type = 'text' name = 'Name' value ='" + nameSearch + "'>" +
+                    "<BR><BR><INPUT type ='submit' value='Сохранить в Cookies'>" +
+                    "</FORM>";
+
+                    // Проверка, было ли отправлено новое значение из формы
+                    if (context.Request.Query.ContainsKey("Name"))
+                    {
+                        // Получение значения из параметров запроса
+                        nameSearch = context.Request.Query["Name"];
+
+                        // Номер варианта в журнале
+                        int N = 3;
+                        // Запись значения в cookies
+                        context.Response.Cookies.Append("Name", nameSearch, new CookieOptions
+                        {
+                            Expires = DateTimeOffset.UtcNow.AddSeconds(2 * N + 240)
+                        });
+
+                        // Получение данных из службы поиска
+                        var medicinalProductsService = context.RequestServices.GetService<ICachedMedicineService>();
+                        var medicine = medicinalProductsService.SearchObject(nameSearch);
+
+                        if (medicine != null)
+                        {
+                            strResponse += "<TABLE BORDER=1>" +
+                            "<TR>" +
+                            "<TH>Код</TH>" +
+                            "<TH>Название</TH>" +
+                            "<TH>Показания</TH>" +
+                            "<TH>Противопоказания</TH>" +
+                            "<TH>Изготовитель</TH>" +
+                            "<TH>Условия хранения</TH>" +
+                            "</TR>" +
+                            "<TR>" +
+                            "<TD>" + medicine.Id + "</TD>" +
+                            "<TD>" + medicine.Name + "</TD>" +
+                            "<TD>" + medicine.Indications + "</TD>" +
+                            "<TD>" + medicine.Contraindications + "</TD>" +
+                            "<TD>" + medicine.Manufacturer + "</TD>" +
+                            "<TD>" + medicine.Packaging + "</TD>" +
+                            "</TR>" +
+                            "</TABLE>";
+                        }
+                    }
+
+                    strResponse += "</BODY></HTML>";
+
+                    // Асинхронный вывод HTML
+                    await context.Response.WriteAsync(strResponse);
+                });
+            });
+
             //Запоминание в Session значений, введенных в форме
             app.Map("/searchform2", (appBuilder) =>
             {
@@ -115,8 +180,8 @@ namespace MedicinalProductsSystem
                     string nameSearch = medicine.Name;
 
                     // Формирование строки для вывода динамической HTML формы
+                    title = "Поиск записей по полю (2)";
                     string strResponse = homeHTML +
-                    "<HTML><HEAD><TITLE>Поиск по имени в таблице Medicine</TITLE></HEAD>" +
                     "<H1>Поиск по имени в таблице Medicine</H1>" +
                     "<META http-equiv='Content-Type' content='text/html; charset=utf-8'/>" +
                     "<BODY><FORM action ='/searchform2' / >" +
@@ -157,10 +222,6 @@ namespace MedicinalProductsSystem
 
 
 
-            //Запоминание в Сookies значений, введенных в форме
-            //..
-
-
             // Вывод информации о клиенте
             app.Map("/info", (appBuilder) =>
             {
@@ -179,7 +240,6 @@ namespace MedicinalProductsSystem
                 });
             });
 
-            // Вывод кэшированной информации из таблицы базы данных
             app.Map("/costmedicines", (appBuilder) =>
             {
                 appBuilder.Run(async (context) =>
@@ -400,10 +460,8 @@ namespace MedicinalProductsSystem
                 });
             });
             
-            // Стартовая страница и кэширование данных таблицы на web-сервере
             app.Run((context) =>
             {
-                //обращение к сервису
                 ICachedCostMedicineService cachedMedicinalProductsService = context.RequestServices.GetService<ICachedCostMedicineService>();
                 cachedMedicinalProductsService.AddCostMedicines("CostMedicines20");
 
